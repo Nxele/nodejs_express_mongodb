@@ -19,7 +19,21 @@ app.get('/',(req,res)=>{
    }) 
 })
 
+//detele a user
+app.delete('/api/users/:id',(req,res)=>{
+    MongoClient.connect(connection_url,connection_config,(err,db)=>{
+        if(err) throw err;
+        const dbo = db.db('getsome').collection('user');
+        const deleteUser = {_id:req.params.id}
+        dbo.deleteOne(deleteUser,(erro,result)=>{
+            if(erro) throw erro;
+            res.send(result);
+            db.close();
+        })
+    })
+})
 
+//get all users
 app.get('/api/users',(req,res)=>{
     MongoClient.connect(connection_url,connection_config,(err,db) => {
         if(err) throw err;
@@ -32,7 +46,7 @@ app.get('/api/users',(req,res)=>{
     });
 })
 
-
+//insert a new user
 app.post('/api/users',(req,res)=>{
     MongoClient.connect(connection_url,connection_config,(erro,db)=>{
         if(erro) throw erro;
@@ -45,6 +59,20 @@ app.post('/api/users',(req,res)=>{
     })
 })
 
+//update user information
+app.put('/api/users/:name',(req,res)=>{
+    MongoClient.connect(connection_url,connection_config,(err,db)=>{
+        const dbo = db.db('getsome').collection('user');
+        const username = {name:req.params.name}
+        const updateUser = {$set:{address:req.body.address}}
+        console.log(req.params.name)
+        console.log(req.body.address)
+        dbo.updateOne(username,updateUser,(err,result)=>{
+            res.send(result);
+            db.close();
+        })
+    })
+})
 
 app.listen(3000,()=>{
     console.log("started");

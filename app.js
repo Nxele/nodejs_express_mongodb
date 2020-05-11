@@ -24,7 +24,7 @@ app.delete('/api/users/:id',(req,res)=>{
     MongoClient.connect(connection_url,connection_config,(err,db)=>{
         if(err) throw err;
         const dbo = db.db('getsome').collection('user');
-        const deleteUser = {_id:req.params.id}
+        const deleteUser = {name:req.params.id}
         dbo.deleteOne(deleteUser,(erro,result)=>{
             if(erro) throw erro;
             res.send(result);
@@ -50,10 +50,29 @@ app.get('/api/users',(req,res)=>{
 app.post('/api/users',(req,res)=>{
     MongoClient.connect(connection_url,connection_config,(erro,db)=>{
         if(erro) throw erro;
-        const dbo = db.db("getsome").collection("user");
+        const dbo = db.db("mytodo").collection("user");
         dbo.insertOne(req.body,(erro,result)=>{
             if(erro) throw erro
             res.send(result.insertedId)
+            db.close();
+        })
+    })
+})
+
+//authanticate user for login
+app.post('/api/users/authenticate',(req,res)=>{
+    MongoClient.connect(connection_url,connection_config,(erro,db) =>{
+        if(erro) throw erro;
+        const dbo = db.db("mytodo").collection("user");
+        const loginQuery = {"username":req.body.username,"password":req.body.password};
+        dbo.find(loginQuery).toArray((erro,result)=>{
+            if(erro) throw erro
+            if(result.length>0){
+                res.send("loginpassed")
+            }
+            else{
+                res.send("loginfailed")
+            }
             db.close();
         })
     })
